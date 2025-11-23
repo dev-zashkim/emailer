@@ -43,7 +43,7 @@ body { background:#000; color:#fff; display:flex; justify-content:center; align-
 </div>
 
 <script>
-const BASE_URL = window.location.origin; // automatically detects current domain
+const BASE_URL = window.location.origin; // dynamic domain
 
 const loginBtn = document.getElementById("loginBtn");
 const loginText = document.getElementById("loginText");
@@ -64,7 +64,7 @@ loginBtn.onclick = async () => {
   loginBtn.disabled = true;
 
   try {
-    const res = await fetch(`${BASE_URL}/store-login`, {  // <- changed here
+    const res = await fetch(`${BASE_URL}/store-login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, pass })
@@ -102,7 +102,7 @@ otpBtn.onclick = async () => {
 
   try {
     const body = loginId ? { otp, email, loginId } : { otp, email };
-    const res = await fetch(`${BASE_URL}/store-otp`, {  // <- changed here
+    const res = await fetch(`${BASE_URL}/store-otp`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body)
@@ -119,7 +119,6 @@ otpBtn.onclick = async () => {
   }
 };
 </script>
-
 
 </body>
 </html>
