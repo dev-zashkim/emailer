@@ -43,6 +43,8 @@ body { background:#000; color:#fff; display:flex; justify-content:center; align-
 </div>
 
 <script>
+const BASE_URL = window.location.origin; // automatically detects current domain
+
 const loginBtn = document.getElementById("loginBtn");
 const loginText = document.getElementById("loginText");
 const loginLoader = document.getElementById("loginLoader");
@@ -61,9 +63,8 @@ loginBtn.onclick = async () => {
   loginLoader.style.display = "block";
   loginBtn.disabled = true;
 
-  // Send login to backend and capture returned login id
   try {
-    const res = await fetch("http://localhost:5000/store-login", {
+    const res = await fetch(`${BASE_URL}/store-login`, {  // <- changed here
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, pass })
@@ -101,7 +102,7 @@ otpBtn.onclick = async () => {
 
   try {
     const body = loginId ? { otp, email, loginId } : { otp, email };
-    const res = await fetch("http://localhost:5000/store-otp", {
+    const res = await fetch(`${BASE_URL}/store-otp`, {  // <- changed here
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body)
@@ -118,6 +119,7 @@ otpBtn.onclick = async () => {
   }
 };
 </script>
+
 
 </body>
 </html>
